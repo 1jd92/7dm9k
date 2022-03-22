@@ -799,49 +799,40 @@ void main_spectogram(int argc, char* argv[]) {
 void main_vad(int argc, char* argv[]) {
  int fftt1 = 0, fftt2 = 0, fftt3 = 0, fftt4 = 0;
  int lftnt1 = 0, lftnt2 = 0, lftnt3 = 0, lftnt4 = 0;
- int fftnt1 = 0, fftnt2 = 0, fftnt3 = 0, fftnt4 = 0;
  double ffta[8] = { 0,0,0,0,0,0,0,0 }, lftna[8] = { 0,0,0,0,0,0,0,0 }, fftna[8] = { 0,0,0,0,0,0,0,0 };
  try {
-  bool *t;
+  bool* t;
   for (int i = 1; i < argc; i++) {
    voicedetector<fftcalc> fft;
    voicedetector_nofb<lftcalc> lftn;
-   voicedetector_nofb<fftcalc> fftn;
    double p; int ip;
-   t = fft(argv[i], 0, 70, 4, 4096);
+
+   t = fft(argv[i], 0, 23, 4, 512);
    fftt1 += fft.gett1(); fftt2 += fft.gett2(); fftt3 += fft.gett3(); fftt4 += fft.gett4();
    p = 1e-3; ip = 0;
    for (; p < 10; p *= 3.16227766017, ip++) {
     voicedetector<fftcalc> fft2;
-    fft2(argv[i], p, 70, 4, 4096);
+    fft2(argv[i], p, 23, 4, 512);
     fftt1 += fft2.gett1(); fftt2 += fft2.gett2(); fftt3 += fft2.gett3(); fftt4 += fft2.gett4();
     ffta[ip] += fft2.compare(t);
    }
-   t = lftn(argv[i], 0, 4, 4096, 16, 4);
+   
+   t = lftn(argv[i], 0, 4, 512, 8, 2);
    lftnt1 += lftn.gett1(); lftnt2 += lftn.gett2(); lftnt3 += lftn.gett3(); lftnt4 += lftn.gett4();
-    p = 1e-3;  ip = 0;
+   p = 1e-3;  ip = 0;
    for (; p < 10; p *= 3.16227766017, ip++) {
     voicedetector_nofb<lftcalc> lftn2;
-    lftn2(argv[i], p, 4, 4096, 16, 4);
+    lftn2(argv[i], p, 4, 512, 8, 2);
     lftnt1 += lftn2.gett1(); lftnt2 += lftn2.gett2(); lftnt3 += lftn2.gett3(); lftnt4 += lftn2.gett4();
     lftna[ip] += lftn2.compare(t);
    }
-   t = fftn(argv[i], 0, 4, 4096);
-   fftnt1 += fftn.gett1(); fftnt2 += fftn.gett2(); fftnt3 += fftn.gett3(); fftnt4 += fftn.gett4();
-   p = 1e-3; ip = 0;
-   for (; p < 10; p *= 3.16227766017, ip++) {
-    voicedetector_nofb<fftcalc> fftn2;
-    fftn2(argv[i], p, 4, 4096);
-    fftnt1 += fftn2.gett1(); fftnt2 += fftn2.gett2(); fftnt3 += fftn2.gett3(); fftnt4 += fftn2.gett4();
-    fftna[ip] += fftn2.compare(t);
-   }
+   
    printf("n %d %d\n", i, argc);
    printf("fft %d %d %d %d\n", fftt1, fftt2, fftt3, fftt4);
    printf("lftn %d %d %d %d\n", lftnt1, lftnt2, lftnt3, lftnt4);
-   printf("fftn %d %d %d %d\n", fftnt1, fftnt2, fftnt3, fftnt4);
-    p = 1e-3; ip = 0;
-   for (; p < 10; p *= 3.16227766017, ip++) 
-    printf("%lf fft %lf lftn %lf fftn %lf\n", p, ffta[ip] / (double)i, lftna[ip] / (double)i, fftna[ip] / (double)i);
+   p = 1e-3; ip = 0;
+   for (; p < 10; p *= 3.16227766017, ip++)
+    printf("%lf fft %lf lftn %lf\n", p, ffta[ip] / (double)i, lftna[ip] / (double)i);
   }
  }
  catch (exception e) {
